@@ -3,6 +3,7 @@ import math
 #	fit a sphere to X,Y, and Z data points
 #	returns the radius and center points of
 #	the best fit sphere
+#   http://jekel.me/2015/Least-Squares-Sphere-Fit/
 
 def sphereFit(spX,spY,spZ):
     #   Assemble the A matrix
@@ -31,6 +32,7 @@ from matplotlib import rcParams
 rcParams['font.family'] = 'serif'
 #   3D plot of the 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 def plotSphere(px,py,pz):
 
@@ -45,13 +47,16 @@ def plotSphere(px,py,pz):
 
     #   3D plot of Sphere
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(correctX, correctY, correctZ, zdir='z', s=20, c='b',rasterized=True)
+    #ax = fig.add_subplot(111, projection='3d')
+
+    ax = Axes3D(fig)
+
+    ax.scatter( px, py, pz, zdir='z', c='b',rasterized=True)
     ax.plot_wireframe(x, y, z, color="r")
     ax.set_aspect('equal')
-    ax.set_xlim3d(-35, 35)
-    ax.set_ylim3d(-35,35)
-    ax.set_zlim3d(-70,0)
+    ax.set_xlim3d(3, 4.5)
+    ax.set_ylim3d(2.5, 4)
+    ax.set_zlim3d(-0.5, 1)
     ax.set_xlabel('$x$ (mm)',fontsize=16)
     ax.set_ylabel('\n$y$ (mm)',fontsize=16)
     zlabel = ax.set_zlabel('\n$z$ (mm)',fontsize=16)
@@ -74,6 +79,8 @@ def main():
         rp = math.sqrt(dx*dx+dy*dy+dz*dz)
         print(rp-r)
         i+=1
+
+    plotSphere( a[0],a[1],a[2])
 
 
 if __name__ == '__main__':
