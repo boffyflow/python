@@ -54,9 +54,11 @@ def plotSphere(px,py,pz):
     ax.scatter( px, py, pz, zdir='z', c='b',rasterized=True)
     ax.plot_wireframe(x, y, z, color="r")
     ax.set_aspect('equal')
-    ax.set_xlim3d(3, 4.5)
-    ax.set_ylim3d(2.5, 4)
-    ax.set_zlim3d(-0.5, 1)
+
+    maxrange = max( max(px) - min(px), max(py) - min(py), max(pz) - min(pz)) + 0.5
+    ax.set_xlim3d( min(px) - 0.5, min(px) + maxrange)
+    ax.set_ylim3d( min(py) - 0.5, min(py) + maxrange)
+    ax.set_zlim3d( min(pz) - 1.0, min(pz) + maxrange - 0.5)  # make fitted sphere stay in the positive quadrant
     ax.set_xlabel('$x$ (mm)',fontsize=16)
     ax.set_ylabel('\n$y$ (mm)',fontsize=16)
     zlabel = ax.set_zlabel('\n$z$ (mm)',fontsize=16)
@@ -65,7 +67,7 @@ def plotSphere(px,py,pz):
 
 def main():
   
-    a = np.genfromtxt('mc_sphere3.txt',unpack='True',delimiter=' ')
+    a = np.genfromtxt('mc_sphere1.txt',unpack='True',delimiter=' ')
 
     r, x0, y0, z0 = sphereFit( a[0],a[1],a[2])
 
