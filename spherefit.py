@@ -1,5 +1,7 @@
 import numpy as np
 import math
+import argparse
+
 #	fit a sphere to X,Y, and Z data points
 #	returns the radius and center points of
 #	the best fit sphere
@@ -47,10 +49,7 @@ def plotSphere(px,py,pz):
 
     #   3D plot of Sphere
     fig = plt.figure()
-    #ax = fig.add_subplot(111, projection='3d')
-
     ax = Axes3D(fig)
-
     ax.scatter( px, py, pz, zdir='z', c='b',rasterized=True)
     ax.plot_wireframe(x, y, z, color="r")
     ax.set_aspect('equal')
@@ -59,30 +58,102 @@ def plotSphere(px,py,pz):
     ax.set_xlim3d( min(px) - 0.5, min(px) + maxrange)
     ax.set_ylim3d( min(py) - 0.5, min(py) + maxrange)
     ax.set_zlim3d( min(pz) - 1.0, min(pz) + maxrange - 0.5)  # make fitted sphere stay in the positive quadrant
+
     ax.set_xlabel('$x$ (mm)',fontsize=16)
     ax.set_ylabel('\n$y$ (mm)',fontsize=16)
     zlabel = ax.set_zlabel('\n$z$ (mm)',fontsize=16)
     plt.show()
-    plt.savefig('steelBallFitted.pdf', format='pdf', dpi=300, bbox_extra_artists=[zlabel], bbox_inches='tight')
+#    plt.savefig('FittedSphere.pdf', format='pdf', dpi=300, bbox_extra_artists=[zlabel], bbox_inches='tight')
+
+def remove_outliers(px, py, pz):
+
+    r,x0,y0,z0 = sphereFit(px,py,pz)
+
+    errors = []
+    i = 0
+    while i < len(px):
+        dx = px[i] - x0
+        dy = py[i] - y0
+        dz = pz[i] - z0
+        rp = math.sqrt(dx*dx+dy*dy+dz*dz)
+        errors.append(rp-r)
+        i+=1
+
+    sigma = np.std(errors)
+    ave = np.mean(errors)
+    print( 'average: %.5f' % ave)
+    print( 'stdev: %.5f' % sigma)
+
+    x = []
+    y = []
+    z = []
+
+    i = 0
+    while i < len(errors):
+        if( abs(errors[i]) < (3 * sigma)):
+            x.append( px[i])
+            y.append( py[i])
+            z.append( pz[i])
+        i+=1
+
+    print( 'number of original points: %d' % len(errors))
+    print( 'number of clean points: %d' % len(x))
+    print( 'removed %d points (or %.2f percent)' % (len(errors)-len(x), 100 * (len(errors) - len(x)) / len(errors) ) )
+
+    return x,y,z
+
+
+def parse_args():
+
+    parser = argparse.ArgumentParser(description='Simple Sphere Fitting')
+
+    parser.add_argument('-i','--input',required=True,help='Name of the text file containing the 3D points in XYZ (required)')
+    parser.add_argument('-o','--output',default='results.txt',required=False,help='Name of the file containing results (default: results.txt)')
+    parser.add_argument('-d','--delimiter',default='space',choices=['space','comma'],required=False,help='Character that separates XYZ in the input file (default: space)')
+    parser.add_argument('-p','--plot',default='false',choices=['true','false'],required=False,help='Create a plot of the sphere (default: false)')
+
+    return parser.parse_args()
+
 
 def main():
   
-    a = np.genfromtxt('mc_sphere1.txt',unpack='True',delimiter=' ')
+    args = parse_args()
+    fp = open( args.output, "w")
 
-    r, x0, y0, z0 = sphereFit( a[0],a[1],a[2])
+    sep = " " if (args.delimiter == 'space') else ','
+    a = np.genfromtxt( args.input,unpack='True',delimiter=sep)
 
-    print( r, x0, y0, z0)
+    x, y, z = remove_outliers( a[0],a[1],a[2])
+    r, x0, y0, z0 = sphereFit(x,y,z)
+
+    fp.write('Number of points: %d\n' % len(x))
+    print('Number of points: %d' % len(x))
+    fp.write('Radius,X0,Y0,Z0\n')
+    print('Radius,X0,Y0,Z0')
+    fp.write('%.5f,%.5f,%.5f,%.5f\n' % (r, x0, y0, z0))
+    print('%.5f,%.5f,%.5f,%.5f' % (r, x0, y0, z0))
 
     i = 0
-    while i < len(a[0]):
-        dx = a[0][i] - x0
-        dy = a[1][i] - y0
-        dz = a[2][i] - z0
+    errors = []
+
+    while i < len(x):
+        dx = x[i] - x0
+        dy = y[i] - y0
+        dz = z[i] - z0
         rp = math.sqrt(dx*dx+dy*dy+dz*dz)
-        print(rp-r)
+        errors.append(rp-r)
         i+=1
 
-    plotSphere( a[0],a[1],a[2])
+    fp.write('Errors:\nmin,max,range,stdev\n')
+    print('Errors:')
+    print('min,max,range,stdev')
+    fp.write('%.5f,%.5f,%.5f,%.5f\n' % (min(errors),max(errors),max(errors)-min(errors),np.std(errors)))
+    print('%.5f,%.5f,%.5f,%.5f' % (min(errors),max(errors),max(errors)-min(errors),np.std(errors)))
+
+    if args.plot == 'true':
+        plotSphere( x,y,z)
+
+    fp.close()
 
 
 if __name__ == '__main__':
