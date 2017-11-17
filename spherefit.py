@@ -7,32 +7,32 @@ import argparse
 #	the best fit sphere
 #   http://jekel.me/2015/Least-Squares-Sphere-Fit/
 
-def sphereFit(spX,spY,spZ):
+def sphereFit(spX, spY, spZ):
     #   Assemble the A matrix
     spX = np.array(spX)
     spY = np.array(spY)
     spZ = np.array(spZ)
-    A = np.zeros((len(spX),4))
-    A[:,0] = spX*2
-    A[:,1] = spY*2
-    A[:,2] = spZ*2
-    A[:,3] = 1
-    
+    A = np.zeros((len(spX), 4))
+    A[:, 0] = spX*2
+    A[:, 1] = spY*2
+    A[:, 2] = spZ*2
+    A[:, 3] = 1
+
     #   Assemble the f matrix
-    f = np.zeros((len(spX),1))
-    f[:,0] = (spX*spX) + (spY*spY) + (spZ*spZ)
-    C, residules, rank, singval = np.linalg.lstsq(A,f)
+    f = np.zeros((len(spX), 1))
+    f[:, 0] = (spX*spX) + (spY*spY) + (spZ*spZ)
+    C, residules, rank, singval = np.linalg.lstsq(A, f)
 
     #   solve for the radius
     t = (C[0]*C[0])+(C[1]*C[1])+(C[2]*C[2])+C[3]
     radius = math.sqrt(t)
-    
+
     return radius, C[0], C[1], C[2]
 
 
 from matplotlib import rcParams
 rcParams['font.family'] = 'serif'
-#   3D plot of the 
+#   3D plot of the sphere
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
