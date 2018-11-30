@@ -127,11 +127,13 @@ def main():
     r, x0, y0, z0 = sphereFit(x,y,z)
 
     fp.write('Number of points: %d\n' % len(x))
-    print('Number of points: %d' % len(x))
     fp.write('Radius,X0,Y0,Z0\n')
-    print('Radius,X0,Y0,Z0')
     fp.write('%.5f,%.5f,%.5f,%.5f\n' % (r, x0, y0, z0))
-    print('%.5f,%.5f,%.5f,%.5f' % (r, x0, y0, z0))
+    print('Number of points: %d' % len(x))
+    print('Radius: %.5f' % r)
+    print('X0: %.5f' % x0)
+    print('Y0: %.5f' % y0)
+    print('Z0: %.5f' % z0)
 
     i = 0
     errors = []
@@ -145,10 +147,12 @@ def main():
         i+=1
 
     fp.write('Errors:\nmin,max,range,stdev\n')
-    print('Errors:')
-    print('min,max,range,stdev')
     fp.write('%.5f,%.5f,%.5f,%.5f\n' % (min(errors),max(errors),max(errors)-min(errors),np.std(errors)))
-    print('%.5f,%.5f,%.5f,%.5f' % (min(errors),max(errors),max(errors)-min(errors),np.std(errors)))
+    print('Errors:')
+    print('min: %.5f' % min(errors))
+    print('max: %.5f' % max(errors))
+    print('range: %.5f' % (max(errors) - min(errors)))
+    print('stdev: %.5f' % np.std(errors))
 
     if args.plot == 'true':
         plotSphere( x,y,z)
