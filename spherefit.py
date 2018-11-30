@@ -65,7 +65,7 @@ def plotSphere(px,py,pz):
     plt.show()
 #    plt.savefig('FittedSphere.pdf', format='pdf', dpi=300, bbox_extra_artists=[zlabel], bbox_inches='tight')
 
-def remove_outliers(px, py, pz):
+def remove_outliers(px, py, pz, nsigma):
 
     r,x0,y0,z0 = sphereFit(px,py,pz)
 
@@ -90,7 +90,7 @@ def remove_outliers(px, py, pz):
 
     i = 0
     while i < len(errors):
-        if( abs(errors[i]) < (3 * sigma)):
+        if( abs(errors[i]) < (nsigma * sigma)):
             x.append( px[i])
             y.append( py[i])
             z.append( pz[i])
@@ -111,6 +111,7 @@ def parse_args():
     parser.add_argument('-o','--output',default='results.txt',required=False,help='Name of the file containing results (default: results.txt)')
     parser.add_argument('-d','--delimiter',default='space',choices=['space','comma'],required=False,help='Character that separates XYZ in the input file (default: space)')
     parser.add_argument('-p','--plot',default='false',choices=['true','false'],required=False,help='Create a plot of the sphere (default: false)')
+    parser.add_argument('-s','--nsigma',default=3,required=False,help='how many sigma for outlier removal (default: 10)')
 
     return parser.parse_args()
 
@@ -123,7 +124,7 @@ def main():
     sep = " " if (args.delimiter == 'space') else ','
     a = np.genfromtxt( args.input,unpack='True',delimiter=sep)
 
-    x, y, z = remove_outliers( a[0],a[1],a[2])
+    x, y, z = remove_outliers( a[0],a[1],a[2], args.nsigma)
     r, x0, y0, z0 = sphereFit(x,y,z)
 
     fp.write('Number of points: %d\n' % len(x))
