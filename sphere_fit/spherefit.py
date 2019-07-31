@@ -111,7 +111,7 @@ def parse_args():
     parser.add_argument('-o','--output',default='results.txt',required=False,help='Name of the file containing results (default: results.txt)')
     parser.add_argument('-d','--delimiter',default='space',choices=['space','comma'],required=False,help='Character that separates XYZ in the input file (default: space)')
     parser.add_argument('-p','--plot',default='false',choices=['true','false'],required=False,help='Create a plot of the sphere (default: false)')
-    parser.add_argument('-s','--nsigma',default=3,required=False,help='how many sigma for outlier removal (default: 10)')
+    parser.add_argument('-s','--nsigma',default=3,required=False,help='how many sigma for outlier removal (default: 3)')
 
     return parser.parse_args()
 
